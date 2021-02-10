@@ -19,9 +19,24 @@ namespace ServiceApp
             host.AddServiceEndpoint(typeof(IWCFContract), binding, address);
 
 
+            WCFService service = new WCFService();
+
+            Console.WriteLine("Testing reading from DB...");
+            service.TestLoad();
+
+            Console.WriteLine("\n\nTesting writing to DB...");
+            service.TestStore();
+            service.TestLoad();
+
+
             host.Open();
             Console.WriteLine("WCFService is opened. Press <enter> to finish...");
+
+           
             Console.ReadLine();
+
+            
+
 
             host.Close();
         }
