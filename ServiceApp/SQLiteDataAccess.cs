@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Contracts;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contracts
+namespace ServiceApp
 {
     public class SQLiteDataAccess
     {
@@ -55,8 +56,8 @@ namespace Contracts
         {
             using (IDbConnection cnn = new SQLiteConnection(LoadConnectionString()))
             {
-                    cnn.Execute("insert into \"Heat control devices\" (Name, Timestamp, 'Group', MeasurementUnit, MeasuredValue)" +
-                        " values (@Name, @Timestamp, @Group, @MeasurementUnit, @MeasuredValue)", device);
+                cnn.Execute("insert into \"Heat control devices\" (Name, Timestamp, 'Group', MeasurementUnit, MeasuredValue)" +
+                    " values (@Name, @Timestamp, @Group, @MeasurementUnit, @MeasuredValue)", device);
             }
         }
 
