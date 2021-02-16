@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Contracts
 {
+    [Serializable]
     public class Device
     {
         public string Name { get; set; }

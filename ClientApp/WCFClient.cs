@@ -41,6 +41,18 @@ namespace ClientApp
             }
         }
 
+        public void SendMessage(string message, byte[] sign)
+        {
+            try
+            {
+                factory.SendMessage(message, sign);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[SendMessage] ERROR = {0}", e.Message);
+            }
+        }
+
         public void Dispose()
         {
             if (factory != null)
