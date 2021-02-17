@@ -2,6 +2,7 @@
 using Manager;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
@@ -61,6 +62,12 @@ namespace ClientApp
             }
 
             this.Close();
+        }
+
+        public string ReadValuesFromFile(string name)
+        {
+            string contents = File.ReadAllText($@"C:\Users\Luka\Desktop\SBES\Projekat\Values\{name}.txt");
+            return contents;
         }
     }
 }

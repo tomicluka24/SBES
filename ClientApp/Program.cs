@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ClientApp
@@ -67,78 +68,96 @@ namespace ClientApp
                 Console.ReadLine();
                 #endregion testing
 
+                #region setting up device
+                string name = "";
+                string group = "";
+                string measurementUnit = "";
+
+
+                if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Contains("heatCtrlDevice"))
+                {
+                    if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Equals("heatCtrlDevice"))
+                    {
+                        name = "thermometer";
+                    }
+                    else
+                    {
+                        name = "thermometer2";
+                    }
+                    group = "heatCtrl";
+                    measurementUnit = "C";
+                }
+                else if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Contains("humidityCtrlDevice"))
+                {
+                    if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Equals("humidityCtrlDevice"))
+                    {
+                        name = "hygrometer";
+                    }
+                    else
+                    {
+                        name = "hygrometer2";
+                    }
+                    group = "humidityCtrl";
+                    measurementUnit = "%";
+                }
+                else if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Contains("pressureCtrlDevice"))
+                {
+                    if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Equals("pressureCtrlDevice"))
+                    {
+                        name = "barometer";
+                    }
+                    else
+                    {
+                        name = "barometer2";
+                    }
+                    group = "pressureCtrl";
+                    measurementUnit = "hPa";
+                }
+                else
+                {
+                    if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name).Equals("windCtrlDevice"))
+                    {
+                        name = "anemometer";
+                    }
+                    else
+                    {
+                        name = "anemometer2";
+                    }
+                    group = "windCtrl";
+                    measurementUnit = "m/s";
+                }
+
+                #endregion setting up device
 
                 for (; ;)
                 {
                     Console.WriteLine("Press 1 - manual database input \nPress 2 - automatic database input \nPress 0 - Exit");
                     string choice = Console.ReadLine();
+
                     switch (choice)
                     {
                         case "0":
                             break;
 
-                        case "1":
                             // Manual input
-                            #region setting up device
-                            string name = "";
-                            string group = "";
-                            string measurementUnit = "";
+                        case "1":
 
-                            int heatDevCounter = 0;
-                            int humidityDevCounter = 0;
-                            int pressureDevCounter = 0;
-                            int windDevCounter = 0;
-                            if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name) == "heatCtrlDevice")
+                            if (name.Contains("thermometer"))
                             {
-                                name = "thermometer";
-                                group = "heatCtrl";
-                                measurementUnit = "C";
-                                if (heatDevCounter != 0)
-                                    name += heatDevCounter.ToString();
-
                                 Console.WriteLine("Enter measured value in [C]: ");
-
-                                heatDevCounter++;
                             }
-                            else if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name) == "humidityCtrlDevice")
+                            else if (name.Contains("hygrometer"))
                             {
-                                name = "hygrometer";
-                                group = "humidityCtrl";
-                                measurementUnit = "%";
-                                if (humidityDevCounter != 0)
-                                    name += humidityDevCounter.ToString();
-
                                 Console.WriteLine("Enter measured value in [%]: ");
-
-                                humidityDevCounter++;
                             }
-                            else if (Formatter.ParseName(WindowsIdentity.GetCurrent().Name) == "pressureCtrlDevice")
+                            else if (name.Contains("barometer"))
                             {
-                                name = "barometer";
-                                group = "pressureCtrl";
-                                measurementUnit = "hPa";
-                                if (pressureDevCounter != 0)
-                                    name += pressureDevCounter.ToString();
-
                                 Console.WriteLine("Enter measured value in [hPa]: ");
-
-                                pressureDevCounter++;
                             }
                             else
                             {
-                                name = "anemometer";
-                                group = "windCtrl";
-                                measurementUnit = "m/s";
-                                if (windDevCounter != 0)
-                                    name += windDevCounter.ToString();
-
                                 Console.WriteLine("Enter measured value in [m/s]: ");
-
-                                windDevCounter++;
                             }
-
-                            #endregion setting up device
-
                             string measuredValue = Console.ReadLine();
                             DateTime timestamp = DateTime.Now;
 
@@ -154,10 +173,28 @@ namespace ClientApp
                             Console.ReadLine();
                             continue;
 
+                        // Auto input
                         case "2":
-                            //TODO script call
+                            DateTime timestampAuto = DateTime.Now;
+                            string values = proxy.ReadValuesFromFile(name);
+                            string[] splitedValues = values.Split(';');
 
-                            break;
+                            string objectToSendAuto = "";
+
+                            /// Create a signature based on the "signCertCN"
+                            X509Certificate2 certificateSignAuto = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, signCertCN);
+
+                            for (int i = 0; i < splitedValues.Length; i++)
+                            {
+                                objectToSendAuto = name + ";" + timestampAuto + ";" + group + ";" + measurementUnit + ";" + splitedValues[i];
+                                byte[] signatureAuto = DigitalSignature.Create(objectToSendAuto, HashAlgorithm.SHA1, certificateSignAuto);
+
+                                proxy.SendMessage(objectToSendAuto, signatureAuto);
+                                Console.WriteLine($"SendMessage() using {signCertCN} certificate finished. Reading other values ...");
+                                Thread.Sleep(2000);
+                            }
+
+                            continue;
 
                         default:
                             Console.WriteLine("You did not press 1 or 2");

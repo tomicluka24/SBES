@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using System.ServiceModel.Security;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,25 @@ namespace ServiceApp
             string address = "net.tcp://localhost:9999/WCFService";
 
             ServiceHost host = new ServiceHost(typeof(WCFService));
-            host.AddServiceEndpoint(typeof(IWCFContract), binding, address);
+			host.AddServiceEndpoint(typeof(IWCFContract), binding, address);
+
+			ServiceDebugBehavior debug = host.Description.Behaviors.Find<ServiceDebugBehavior>();
+			if (debug == null)
+			{
+				host.Description.Behaviors.Add(
+					 new ServiceDebugBehavior() { IncludeExceptionDetailInFaults = true });
+			}
+			else
+			{
+				// make sure setting is turned ON
+				if (!debug.IncludeExceptionDetailInFaults)
+				{
+					debug.IncludeExceptionDetailInFaults = true;
+				}
+			}
+
+
+
 
             /// Chaintrust
 			host.Credentials.ClientCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.ChainTrust;

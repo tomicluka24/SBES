@@ -25,12 +25,12 @@ namespace Manager
 			X509Certificate2Collection certCollection = store.Certificates.Find(X509FindType.FindBySubjectName, subjectName, true);
 
 			/// Check whether the subjectName of the certificate is exactly the same as the given "subjectName"
-			string subjectGroup = "";
+			//string subjectGroup = "";
 			
-
+			
 			// Certificate with OU = group of device (ex. CN=heatCtrlDevice, OU=heatCtrl)
-			if (subjectName != "wcfService" && !subjectName.Contains("_sign"))
-				 subjectGroup = subjectName.Substring(0, subjectName.Length - 6);
+			//if (subjectName != "wcfService" && !subjectName.Contains("_sign"))
+			//	 subjectGroup = subjectName.Substring(0, subjectName.Length - 6);
 
 
 			foreach (X509Certificate2 c in certCollection)
@@ -53,43 +53,20 @@ namespace Manager
 					}
 					else 
 					{
-						if((c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, subjectGroup))))
-						return c;
+						if((c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, "heatCtrl"))))
+							return c;
+
+						if ((c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, "humidityCtrl"))))
+							return c;
+
+						if ((c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, "pressureCtrl"))))
+							return c;
+
+						if ((c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, "windCtrl"))))
+							return c;
 					}
 				}				
 				
-
-
-
-				if(subjectName != "wcfService" || !subjectName.Contains("_sign"))
-                {
-					//// Device
-					//if (!subjectName.Contains("_sign"))
-					//{
-						
-					//}
-					//// Signature
-					//else
-					//{ 
-					//	if (c.SubjectName.Name.Contains(string.Format("CN={0}, OU={1}", subjectName, subjectName += "_sign")))
-					//	{
-					//		return c;
-					//	}
-					//}
-				}
-				//else if(subjectName == "wcfService")
-    //            {
-				//	if (c.SubjectName.Name.Equals(string.Format("CN={0}", subjectName)))
-				//	{
-				//		return c;
-				//	}
-				//}
-				else
-                {
-					
-				}
-					
-
                 //Console.WriteLine($"{c.SubjectName.Name}");
 			}
 
