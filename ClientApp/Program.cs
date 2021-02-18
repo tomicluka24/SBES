@@ -16,6 +16,8 @@ namespace ClientApp
         static void Main(string[] args)
         {
             Console.ReadLine();
+           // AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+
             /// Define the expected service certificate. It is required to establish cmmunication using certificates.
             string srvCertCN = "wcfService";
 
@@ -175,7 +177,6 @@ namespace ClientApp
 
                         // Auto input
                         case "2":
-                            DateTime timestampAuto = DateTime.Now;
                             string values = proxy.ReadValuesFromFile(name);
                             string[] splitedValues = values.Split(';');
 
@@ -186,6 +187,7 @@ namespace ClientApp
 
                             for (int i = 0; i < splitedValues.Length; i++)
                             {
+                                DateTime timestampAuto = DateTime.Now;
                                 objectToSendAuto = name + ";" + timestampAuto + ";" + group + ";" + measurementUnit + ";" + splitedValues[i];
                                 byte[] signatureAuto = DigitalSignature.Create(objectToSendAuto, HashAlgorithm.SHA1, certificateSignAuto);
 

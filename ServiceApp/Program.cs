@@ -2,6 +2,7 @@
 using Manager;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Policy;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
@@ -27,6 +28,19 @@ namespace ServiceApp
 
             ServiceHost host = new ServiceHost(typeof(WCFService));
 			host.AddServiceEndpoint(typeof(IWCFContract), binding, address);
+
+	
+
+			// Podesavamo da se koristi CustomAuthorizationManager umesto ugradjenog
+			//host.Authorization.ServiceAuthorizationManager = new CustomAuthorizationManager();
+			// Podesavamo custom polisu, odnosno nas objekat principala
+			host.Authorization.PrincipalPermissionMode = PrincipalPermissionMode.Custom;
+
+			// Podesavamo listu polisa
+			List<IAuthorizationPolicy> policies = new List<IAuthorizationPolicy>();
+			policies.Add(new CustomAuthorizationPolicy());
+			host.Authorization.ExternalAuthorizationPolicies = policies.AsReadOnly();
+
 
 			ServiceDebugBehavior debug = host.Description.Behaviors.Find<ServiceDebugBehavior>();
 			if (debug == null)

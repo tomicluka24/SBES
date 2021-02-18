@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ClientApp
@@ -36,9 +37,13 @@ namespace ClientApp
             {
                 factory.TestCommunication();
             }
+            catch (FaultException e)
+            {
+                Console.WriteLine("[TestCommunication] ERROR : {0}", e.Message);
+            }
             catch (Exception e)
             {
-                Console.WriteLine("[TestCommunication] ERROR = {0}", e.Message);
+                Console.WriteLine("[TestCommunication] ERROR : {0}", e.Message);
             }
         }
 
@@ -48,9 +53,13 @@ namespace ClientApp
             {
                 factory.SendMessage(message, sign);
             }
+            catch (FaultException e)
+            {
+                Console.WriteLine("[SendMessage] ERROR : {0}", e.Message);
+            }
             catch (Exception e)
             {
-                Console.WriteLine("[SendMessage] ERROR = {0}", e.Message);
+                Console.WriteLine("[SendMessage] ERROR : {0}", e.Message);
             }
         }
 
